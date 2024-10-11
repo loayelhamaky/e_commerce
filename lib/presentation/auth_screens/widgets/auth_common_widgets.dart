@@ -56,7 +56,7 @@ class AuthCommonWidgets {
       String title, VoidCallback onTap, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 30),
-      height:66.h,
+      height: 66.h,
       width: MediaQuery.of(context).size.width,
       child: ElevatedButton(
         style: ButtonStyle(
@@ -64,9 +64,10 @@ class AuthCommonWidgets {
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15)))),
         onPressed: onTap,
-        child: Text(title, style: AppTextStyles.registrationHeading.copyWith(color: AppColors.primary)),
+        child: Text(title,
+            style: AppTextStyles.registrationHeading
+                .copyWith(color: AppColors.primary)),
       ),
     );
   }
-
 }

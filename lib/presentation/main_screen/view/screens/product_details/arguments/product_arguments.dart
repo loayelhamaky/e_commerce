@@ -9,9 +9,11 @@ class ProductCardArguments {
   final double sold;
   final String imageUrl;
   final List<dynamic> availableColors;
+  final double ratingQuantity;
 
   ProductCardArguments({
     required this.id,
+    required this.ratingQuantity,
     required this.price,
     required this.images,
     required this.title,

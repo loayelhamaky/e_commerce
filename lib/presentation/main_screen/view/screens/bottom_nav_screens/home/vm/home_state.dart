@@ -1,41 +1,49 @@
-
-import '../../../../../../../core/enums/base_api_state.dart';
+import '../../../../../../../core/enums/app_enums.dart';
 import '../../../../../../../data/models/products/product_dm.dart';
 
 class HomeState {
+  /// categories
   Map<String, String> categoriesTitlesAndImages = {};
-  int categoriesLength = 0;
-  int productsLength = 0;
+
+  /// home appliance
   List<ProductDM> products = [];
-  BaseApiState categoriesState = BaseApiState.loading;
-  BaseApiState productState = BaseApiState.loading;
+
+  /// wishlist
+  List<String> wishListProductIds = [];
+  BaseApiState updateWishlistState = BaseApiState.success;
+
+  /// cart
+  List<String> cartProductIds = [];
+  BaseApiState updateCartState = BaseApiState.success;
 
   HomeState({
-    Map<String, String>? categoriesTitlesAndImages,
     List<ProductDM>? products,
-    this.categoriesLength = 0,
-    this.productsLength = 0,
-    this.categoriesState = BaseApiState.loading,
-    this.productState = BaseApiState.loading
-  })  : categoriesTitlesAndImages = categoriesTitlesAndImages ?? {},
+    List<String>? wishListProductIds,
+    List<String>? cartProductIds,
+    Map<String, String>? categoriesTitlesAndImages,
+    this.updateWishlistState = BaseApiState.success,
+    this.updateCartState = BaseApiState.success,
+  })  : wishListProductIds = wishListProductIds ?? [],
+        cartProductIds = cartProductIds ?? [],
+        categoriesTitlesAndImages = categoriesTitlesAndImages ?? {},
         products = products ?? [];
 
   HomeState copyWith({
-    Map<String, String>? categoriesTitlesAndImages,
-    int? categoriesLength,
-    int? productsLength,
     List<ProductDM>? products,
-    BaseApiState? categoriesState,
-    BaseApiState? productState,
+    Map<String, String>? categoriesTitlesAndImages,
+    List<String>? wishListProductIds,
+    List<String>? cartProductIds,
+    BaseApiState? updateWishlistState,
+    BaseApiState? updateCartState,
   }) {
     return HomeState(
+      products: products ?? this.products,
       categoriesTitlesAndImages:
           categoriesTitlesAndImages ?? this.categoriesTitlesAndImages,
-      categoriesLength: categoriesLength ?? this.categoriesLength,
-      productsLength: productsLength ?? this.productsLength,
-      products: products ?? this.products,
-      categoriesState: categoriesState ?? this.categoriesState,
-      productState: productState ?? this.productState,
+      wishListProductIds: wishListProductIds ?? this.wishListProductIds,
+      cartProductIds: cartProductIds ?? this.cartProductIds,
+      updateWishlistState: updateWishlistState ?? this.updateWishlistState,
+      updateCartState: updateCartState ?? this.updateCartState,
     );
   }
 }

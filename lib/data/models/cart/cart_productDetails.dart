@@ -1,5 +1,3 @@
-
-
 import '../products/product_dm.dart';
 
 class CartProductDetails {
@@ -12,16 +10,15 @@ class CartProductDetails {
 
   final int? count;
   final String? id;
-  final ProductDM? product;
+  final ProductDM? product;  // Changed from List<ProductDM>? to ProductDM?
   final int? price;
 
-  factory CartProductDetails.fromJson(Map<String, dynamic> json){
+  factory CartProductDetails.fromJson(Map<String, dynamic> json) {
     return CartProductDetails(
       count: json["count"],
       id: json["_id"],
-      product: json["product"] == null ? null : ProductDM.fromJson(json["product"]),
+      product: json["product"] == null ? null : ProductDM.fromJson(json["product"]),  // Changed field name from 'products' to 'product'
       price: json["price"],
     );
   }
-
 }

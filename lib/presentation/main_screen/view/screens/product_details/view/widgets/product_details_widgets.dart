@@ -4,23 +4,25 @@ import 'package:iconly/iconly.dart';
 import '../../../../../../../core/utils/constants/app_colors.dart';
 import '../../../../../../../core/utils/constants/app_text_styles.dart';
 
-class ProductDetailsWidgets{
-  static imageStack(String image){
+class ProductDetailsWidgets {
+  static imageStack(String image, BuildContext context) {
     return Center(
       child: Column(
         children: [
           Stack(
             children: [
-              Image.network(
-                image ,
-                height: 300.h,
-                width: 200.h,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                const Icon(
-                  Icons.error,
-                  color: Colors.red,
-                  size: 50,
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: Image.network(
+                  image,
+                  height: 300.h,
+                  width: 200.h,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.error,
+                    color: Colors.red,
+                    size: 50,
+                  ),
                 ),
               ),
               Positioned(
@@ -41,7 +43,7 @@ class ProductDetailsWidgets{
                   ),
                   child: GestureDetector(
                     onTap: () {
-          ///////////////////////////////////
+                      ///////////////////////////////////
                     },
                     child: Icon(
                       IconlyLight.heart,
@@ -59,22 +61,21 @@ class ProductDetailsWidgets{
     );
   }
 
-  static titleAndPrice(String title, double price){
+  static titleAndPrice(String title, double price) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(title ?? '',
+              child: Text(title,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
                   style: AppTextStyles.heading),
             ),
             Expanded(
-              child: Text('EGP ${price}',
-                  textAlign: TextAlign.right,
-                  style: AppTextStyles.heading),
+              child: Text('EGP $price',
+                  textAlign: TextAlign.right, style: AppTextStyles.heading),
             ),
           ],
         ),
@@ -83,7 +84,8 @@ class ProductDetailsWidgets{
     );
   }
 
-  static soldAndRatings(double sold, double ratingsAverage){
+  static soldAndRatings(
+      double sold, double ratingsAverage, double ratingQuantity) {
     return Column(
       children: [
         Row(
@@ -93,20 +95,37 @@ class ProductDetailsWidgets{
                   borderRadius: BorderRadius.circular(20.r),
                   side: const BorderSide(color: AppColors.primary)),
               label: Text('$sold Sold',
-                  style:
-                  AppTextStyles.heading.copyWith(fontSize: 16.sp)),
+                  style: AppTextStyles.heading.copyWith(fontSize: 16.sp)),
             ),
             SizedBox(width: 8.w),
             Row(
               children: [
                 Icon(IconlyBold.star, color: Colors.amber, size: 22.sp),
-                Text(' $ratingsAverage (7,500)',
+                Text(' $ratingsAverage (7500)',
                     style: AppTextStyles.medium.copyWith(fontSize: 17.sp)),
               ],
             ),
           ],
         ),
         SizedBox(height: 16.h),
+      ],
+    );
+  }
+
+  static priceAndAddToCart(double price, Function onAddToCartClick) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Total price\nEGP $price', style: AppTextStyles.medium),
+        ElevatedButton.icon(
+          onPressed: () => onAddToCartClick,
+          icon: const Icon(Icons.add_shopping_cart),
+          label: const Text('Add to cart'),
+          style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 24.w),
+            textStyle: TextStyle(fontSize: 18.sp),
+          ),
+        ),
       ],
     );
   }

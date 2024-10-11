@@ -1,35 +1,36 @@
-
 import 'cart_productDetails.dart';
 
 class CartDM {
   CartDM({
-    required this.id,
+    required this.cartId,
     required this.cartOwner,
-    required this.cartProducts,
+    required this.cartProductsDetails,
     required this.createdAt,
     required this.updatedAt,
     required this.v,
     required this.totalCartPrice,
   });
 
-  final String? id;
+  final String? cartId;
   final String? cartOwner;
-  final List<CartProductDetails> cartProducts;
+  final List<CartProductDetails> cartProductsDetails;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final int? v;
   final int? totalCartPrice;
 
-  factory CartDM.fromJson(Map<String, dynamic> json){
+  factory CartDM.fromJson(Map<String, dynamic> json) {
     return CartDM(
-      id: json["_id"],
+      cartId: json["_id"],
       cartOwner: json["cartOwner"],
-      cartProducts: json["products"] == null ? [] : List<CartProductDetails>.from(json["products"]!.map((x) => CartProductDetails.fromJson(x))),
+      cartProductsDetails: json["products"] == null
+          ? []
+          : List<CartProductDetails>.from(
+          json["products"]!.map((x) => CartProductDetails.fromJson(x))),
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       v: json["__v"],
       totalCartPrice: json["totalCartPrice"],
     );
   }
-
 }

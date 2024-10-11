@@ -1,10 +1,11 @@
 
-import 'package:e_commerce_app/data/models/auth/user.dart';
+
+import '../user/user.dart';
 
 class AuthResponse {
   final String? message;
   final String? statusMsg;
-  final User? user;
+  final AppUser? user;
   final String? token;
 
   AuthResponse({
@@ -18,19 +19,10 @@ class AuthResponse {
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       message: json["message"],
-      user: json["user"] == null ? null : User.fromJson(json["user"]),
+      user: json["user"] == null ? null : AppUser.fromJson(json["user"]),
       token: json["token"],
       statusMsg: json["statusMsg"],
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "message": message,
-      "user": user?.toJson(),
-      "token": token,
-      "statusMsg": statusMsg,
-    };
   }
 }
 

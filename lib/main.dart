@@ -1,24 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'app/app.dart';
 import 'di/di.dart';
 import 'firebase_options.dart';
 
-/// Full e-commerce app for practice , Real Api
+/// Full e-commerce app for practice
+/// Used [ Clean Arch - Bloc - Provider - Repository pattern - DI and more ]
 ///
-/// Used [ Clean Arc - MVVM - Bloc - Provider - Repository pattern - DI (injectable-get it) ]
-///
-/// register and login has different (logic, data handling) from other app presentation
-///
-/// For register.. used provider, different design and error handling from login,
-/// For login used cubit
+/// integrated firebase auth but got restricted due to many login times so
+/// firebase auth doesn't work by my registered email but the code works
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  configureDependencies(); // Ensure this is called after Firebase.initializeApp
+  await Firebase.initializeApp();
+  configureDependencies();
   runApp(const MyApp());
 }
 

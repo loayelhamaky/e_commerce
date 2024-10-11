@@ -8,5 +8,6 @@ class AppColors{
   static const Color black = Color(0xff111111);
   static const Color white = Color(0xffFFFFFF);
   static const Color grey = Color(0xff9D9FA0);
+  static const Color greyInFigma = Color(0xFFDBE4ED);
   static Color loading = Colors.grey.shade200;
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconly/iconly.dart';
 import '../../../../../core/utils/constants/app_colors.dart';
-import 'icon_widget.dart';
+import 'bottom_nav_icon_widget.dart';
 
 class MyBottomNavBar extends StatelessWidget {
   final int tappedIndex;
@@ -13,9 +13,9 @@ class MyBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70.h,
+      height: MediaQuery.of(context).size.height * 0.07,
       decoration: BoxDecoration(
-        color: AppColors.appText, 
+        color: AppColors.appText,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(28.r),
           topRight: Radius.circular(28.r),
@@ -61,6 +61,14 @@ class MyBottomNavBar extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: tappedIndex == 3
+              ? const BottomNavWidget(IconlyLight.buy)
+              : const Icon(
+                  IconlyLight.buy,
+                ),
+          label: 'cart',
+        ),
+        BottomNavigationBarItem(
+          icon: tappedIndex == 4
               ? const BottomNavWidget(IconlyLight.profile)
               : const Icon(IconlyLight.profile),
           label: 'Profile',

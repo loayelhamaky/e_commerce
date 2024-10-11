@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/utils/constants/app_assets.dart';
-import '../../data/utils/shared_prefs_utils.dart';
+import '../../data/shared_prefs_utils/shared_prefs_utils.dart';
 import '../auth_screens/register/view.dart';
 import '../main_screen/view/main_screen_view.dart';
 
@@ -16,11 +16,11 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Timer(const Duration(seconds: 2), () async{
-      String? token = await SharedPrefsUtils.getToken();
-      token == null ?
-      Navigator.pushReplacementNamed(context, RegisterScreen.routeName) :
-          Navigator.pushReplacementNamed(context, MainScreen.routeName);
+    Timer(const Duration(seconds: 1), () async {
+      String? token = await SharedPrefsUtils.getApiToken();
+      token == null
+          ? Navigator.pushReplacementNamed(context, RegisterScreen.routeName)
+          : Navigator.pushReplacementNamed(context, MainScreen.routeName);
     });
     super.initState();
   }

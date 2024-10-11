@@ -1,3 +1,6 @@
+import 'package:e_commerce_app/data/models/categories/categories_details/sub_category_dm.dart';
+import '../categories/categories_details/category_dm.dart';
+
 class ProductDM {
   ProductDM({
     required this.sold,
@@ -8,6 +11,7 @@ class ProductDM {
     required this.slug,
     required this.description,
     required this.quantity,
+    required this.subCategoryDm,
     required this.price,
     required this.imageCover,
     required this.ratingsAverage,
@@ -26,6 +30,7 @@ class ProductDM {
   final String slug;
   final String description;
   final double quantity;
+  final List<Subcategory> subCategoryDm;
   final double price;
   final String imageCover;
   final double ratingsAverage;
@@ -46,34 +51,23 @@ class ProductDM {
     slug: json["slug"] ?? '',
     description: json["description"] ?? '',
     quantity: (json["quantity"] ?? 0).toDouble(),
+    subCategoryDm: json['subcategory'] != null
+        ? List<Subcategory>.from(
+        json['subcategory'].map((x) => Subcategory.fromJson(x))) // Edited to handle subcategory
+        : [],
     price: (json["price"] ?? 0).toDouble(),
     imageCover: json["imageCover"] ?? '',
     ratingsAverage: (json["ratingsAverage"] ?? 0.0).toDouble(),
-    createdAt: DateTime.parse(json["createdAt"] ?? DateTime.now().toString()),
-    updatedAt: DateTime.parse(json["updatedAt"] ?? DateTime.now().toString()),
+    createdAt:
+    DateTime.parse(json["createdAt"] ?? DateTime.now().toString()),
+    updatedAt:
+    DateTime.parse(json["updatedAt"] ?? DateTime.now().toString()),
     datumId: json["id"] ?? '',
-    priceAfterDiscount: json["priceAfterDiscount"] != null ? (json["priceAfterDiscount"]).toDouble() : null,
+    priceAfterDiscount: json["priceAfterDiscount"] != null
+        ? (json["priceAfterDiscount"]).toDouble()
+        : null,
     availableColors: json["availableColors"] != null
         ? List<dynamic>.from(json["availableColors"].map((x) => x))
         : [],
   );
-
-  Map<String, dynamic> toJson() => {
-    "sold": sold,
-    "images": List<dynamic>.from(images.map((x) => x)),
-    "ratingsQuantity": ratingsQuantity,
-    "_id": id,
-    "title": title,
-    "slug": slug,
-    "description": description,
-    "quantity": quantity,
-    "price": price,
-    "imageCover": imageCover,
-    "ratingsAverage": ratingsAverage,
-    "createdAt": createdAt.toIso8601String(),
-    "updatedAt": updatedAt.toIso8601String(),
-    "id": datumId,
-    "priceAfterDiscount": priceAfterDiscount,
-    "availableColors": List<dynamic>.from(availableColors.map((x) => x)),
-  };
 }

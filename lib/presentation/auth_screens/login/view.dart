@@ -1,22 +1,25 @@
 import 'package:e_commerce_app/presentation/auth_screens/login/widgets.dart';
+import 'package:e_commerce_app/presentation/main_screen/view/main_screen_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../core/enums/base_api_state.dart';
+import '../../../core/enums/app_enums.dart';
 import '../../../core/utils/constants/app_colors.dart';
 import '../../../core/utils/constants/app_strings.dart';
 import '../../../core/utils/constants/app_text_styles.dart';
 import '../../../core/utils/dialog_utils.dart';
+import '../../../core/utils/error/error_strings.dart';
 import '../../../di/di.dart';
 import '../cubit/auth_state.dart';
 import '../widgets/auth_common_widgets.dart';
-import '../cubit/auth_view_models/login_vm.dart';
+import '../cubit/auth_view_models/login_vm/login_vm.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
 
   static const String routeName = 'login';
   final LoginVm vm = getIt<LoginVm>();
+  final LoginWidgets loginWidgets = LoginWidgets();
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +28,21 @@ class LoginScreen extends StatelessWidget {
       child: BlocConsumer<LoginVm, AuthState>(
         listener: (context, state) {
           if (state.state == BaseApiState.offline) {
-            DialogUtils.showOfflineSnackBar(context);
+            DialogUtils.showSnackBar(
+                context, Colors.red, ErrorStrings.internetErrorMessage);
           }
           if (state.state == BaseApiState.online &&
               vm.connectionWasPreviouslyOffline) {
-            DialogUtils.showOnlineSnackBar(context);
+            DialogUtils.showSnackBar(
+                context, Colors.green, AppStrings.internetRestoredMessage);
           }
           if (state.state == BaseApiState.loading) {
             DialogUtils.showLoading(context);
           }
           if (state.state == BaseApiState.failure) {
             DialogUtils.hidePopContext(context);
-            DialogUtils.showErrorSnackBar(
-                context, state.errorMessage ?? AppStrings.errorDefaultMessage);
+            DialogUtils.showSnackBar(context, Colors.red,
+                state.errorMessage ?? ErrorStrings.errorDefaultMessage);
           }
           if (state.state == BaseApiState.success) {
             DialogUtils.hidePopContext(context);
@@ -57,8 +62,8 @@ class LoginScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 16.0.w),
                       child: Column(
                         children: [
-                          LoginWidgets.routeImgInLogin(context),
-                          LoginWidgets.loginWelcomeTitle(context),
+                          loginWidgets.routeImgInLogin(context),
+                          loginWidgets.loginWelcomeTitle(context),
                           Container(
                             alignment: Alignment.centerLeft,
                             margin: EdgeInsets.only(bottom: 10.h, top: 20.h),
@@ -74,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                               vm.validateEmail),
                           Container(
                             alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.only(top: 25.h, bottom: 10.h),
+                            margin: EdgeInsets.only(top: 20.h, bottom: 10.h),
                             child: Text(
                               'Password',
                               style: AppTextStyles.registrationDescription
@@ -94,13 +99,39 @@ class LoginScreen extends StatelessWidget {
                                   style: AppTextStyles.registrationDescription),
                             ),
                           ),
-                          SizedBox(height: 30.h),
                           AuthCommonWidgets.registerButton('Login', () {
                             state.state == BaseApiState.offline
-                                ? DialogUtils.showErrorSnackBar(context, AppStrings.internetErrorMessage)
-                                : vm.login();
+                                ? DialogUtils.showSnackBar(context, Colors.red,
+                                    ErrorStrings.internetErrorMessage)
+                                : vm.loginWithMailAndPassword();
                           }, context),
-                          LoginWidgets.createAccountLine(context),
+                          loginWidgets.createAccountLine(context),
+                          BlocListener<LoginVm, AuthState>(
+                              bloc: vm,
+                              listener: (context, state) {
+                                if (state.state == BaseApiState.failure) {
+                                  DialogUtils.hidePopContext(context);
+                                } else if (state.state ==
+                                    BaseApiState.loading) {
+                                  DialogUtils.showLoading(context);
+                                }
+                                if (state.state == BaseApiState.success) {
+                                  DialogUtils.showSnackBar(context,
+                                      Colors.green, 'logged in successfully');
+                                  DialogUtils.hidePopContext(context);
+                                  Navigator.pushReplacementNamed(
+                                      context, MainScreen.routeName);
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  loginWidgets.loginWithAccWidget(
+                                      vm.loginWithGoogle, vm.signInWithFacebook,
+                                      () {
+                                    vm.onSmsTap(context);
+                                  })
+                                ],
+                              ))
                         ],
                       ),
                     ),

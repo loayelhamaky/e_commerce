@@ -14,6 +14,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  dots_indicator: ^2.0.0
+  lottie: ^3.1.2
   google_fonts: ^6.2.0
   firebase_auth: ^5.1.4
   cloud_firestore: ^5.2.1
@@ -21,13 +23,21 @@ dependencies:
   provider: ^6.1.2
   flutter_screenutil: ^5.9.0
   iconly: ^1.0.1
-  carousel_slider: ^4.2.1
+  #carousel_slider: ^4.0.1
   flutter_bloc: ^8.1.6
   injectable: ^2.4.2
   get_it: ^7.7.0
   internet_connection_checker: ^1.0.0+1
   http: ^1.2.2
   shared_preferences: ^2.2.3
+  dio: ^5.7.0
+  dartz: ^0.10.1
+  google_sign_in: ^6.2.1
+  flutter_facebook_auth: ^6.0.4
+  google_maps_flutter: ^2.9.0
+  geolocator: ^13.0.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 
 
@@ -36,6 +46,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.4.11
   injectable_generator: ^2.6.2
+  permission_handler: ^10.0.0
 
   
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -54,6 +65,8 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/animations/
+    - assets/images/laptops.png
 #  fonts:
 #    - family: Poppins
 #      fonts:
