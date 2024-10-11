@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../../core/enums/app_enums.dart';
@@ -12,8 +10,8 @@ import '../../../../../domain/interface_repos/auth_repo.dart';
 import '../../../../main_screen/view/main_screen_view.dart';
 import '../../../register/view.dart';
 import '../../auth_state.dart';
+import 'login_factory/login_factory.dart';
 
-/// sorry code is kind of long
 @singleton
 class LoginVm extends Cubit<AuthState> {
   final AuthRepo authRepo;
@@ -68,24 +66,22 @@ class LoginVm extends Cubit<AuthState> {
     return null;
   }
 
-  Future<void> loginWithMailAndPassword() async {
+  void login({required LoginType type, BuildContext? context}) {
     if (!formKey.currentState!.validate()) return;
     emit(state.copyWith(state: BaseApiState.loading));
+    LoginFactory loginFactory = LoginFactory(
+        type: type,
+        context: context,
+        verificationId: verificationId,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim());
     try {
-      await authRepo.login(
-          emailController.text.trim(), passwordController.text.trim());
-
-      // UserCredential userCredential = await FirebaseAuth.instance
-      //     .signInWithEmailAndPassword(
-      //         email: emailController.text.trim(),
-      //         password: passwordController.text.trim());
-      // if (userCredential.user != null) {
-      //   emit(state.copyWith(state: BaseApiState.success));
-      // }
+      loginFactory.login();
       emit(state.copyWith(state: BaseApiState.success));
     } catch (e) {
       emit(state.copyWith(
           state: BaseApiState.failure, errorMessage: _handleError(e)));
+      _handleError(e);
     }
   }
 
@@ -125,148 +121,168 @@ class LoginVm extends Cubit<AuthState> {
     emailController.text = '';
     passwordController.text = '';
   }
+/// methods of login
 
-  void loginWithGoogle() async {
-    emit(state.copyWith(state: BaseApiState.loading));
-    GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut();
-    try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        return;
-      }
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      emit(state.copyWith(state: BaseApiState.success));
-    } catch (e) {
-      emit(state.copyWith(state: BaseApiState.failure));
-      print('Error signing in with Google: $e');
-    }
-  }
-
-  Future<User?> signInWithFacebook() async {
-    emit(state.copyWith(state: BaseApiState.loading));
-    final LoginResult result = await FacebookAuth.instance.login();
-    if (result.status == LoginStatus.success) {
-      final AccessToken accessToken = result.accessToken!;
-      final OAuthCredential credential =
-          FacebookAuthProvider.credential(accessToken.token);
-
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      print(userCredential.user?.email ?? 'no email');
-      print(userCredential.credential?.accessToken ?? 'no access token');
-      emit(state.copyWith(state: BaseApiState.success));
-      return userCredential.user;
-    } else {
-      print('Facebook login failed: ${result.message}');
-      emit(state.copyWith(state: BaseApiState.failure));
-      return null;
-    }
-  }
-
-  void onSmsTap(BuildContext context) {
-    TextEditingController phoneController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Enter your phone number"),
-          content: TextField(
-            controller: phoneController,
-            decoration:
-                const InputDecoration(hintText: "example: +201092452462"),
-            keyboardType: TextInputType.phone,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                sendSms(phoneController.text.trim());
-              },
-              child: const Text("Send Code"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void sendSms(String phoneNumber) async {
-    emit(state.copyWith(state: BaseApiState.loading));
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        emit(state.copyWith(state: BaseApiState.success));
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        emit(state.copyWith(
-            state: BaseApiState.failure, errorMessage: e.message));
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        this.verificationId = verificationId;
-        emit(state.copyWith(state: BaseApiState.success));
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        this.verificationId = verificationId;
-      },
-    );
-  }
-
-  Future<void> verifyOtp(String smsCode) async {
-    if (verificationId == null) return;
-    emit(state.copyWith(state: BaseApiState.loading));
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId!,
-        smsCode: smsCode,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      emit(state.copyWith(state: BaseApiState.success));
-    } catch (e) {
-      emit(state.copyWith(
-          state: BaseApiState.failure, errorMessage: e.toString()));
-    }
-  }
-
-  void promptForOtp(BuildContext context) {
-    showOtpDialog(context, (userOtp) {
-      verifyOtp(userOtp);
-    });
-  }
-
-  void showOtpDialog(BuildContext context, Function(String) onOtpEntered) {
-    TextEditingController otpController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Enter OTP"),
-          content: TextField(
-            controller: otpController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              hintText: "Enter the OTP",
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onOtpEntered(otpController.text);
-              },
-              child: const Text("Verify"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+// Future<void> loginWithMailAndPassword() async {
+//   if (!formKey.currentState!.validate()) return;
+//   emit(state.copyWith(state: BaseApiState.loading));
+//   try {
+//     await authRepo.login(
+//         emailController.text.trim(), passwordController.text.trim());
+//
+//     // UserCredential userCredential = await FirebaseAuth.instance
+//     //     .signInWithEmailAndPassword(
+//     //         email: emailController.text.trim(),
+//     //         password: passwordController.text.trim());
+//     // if (userCredential.user != null) {
+//     //   emit(state.copyWith(state: BaseApiState.success));
+//     // }
+//     emit(state.copyWith(state: BaseApiState.success));
+//   } catch (e) {
+//     emit(state.copyWith(
+//         state: BaseApiState.failure, errorMessage: _handleError(e)));
+//   }
+// }
+  // void loginWithGoogle() async {
+  //   emit(state.copyWith(state: BaseApiState.loading));
+  //   GoogleSignIn googleSignIn = GoogleSignIn();
+  //   await googleSignIn.signOut();
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  //     if (googleUser == null) {
+  //       return;
+  //     }
+  //     final GoogleSignInAuthentication googleAuth =
+  //         await googleUser.authentication;
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth.accessToken,
+  //       idToken: googleAuth.idToken,
+  //     );
+  //     await FirebaseAuth.instance.signInWithCredential(credential);
+  //     emit(state.copyWith(state: BaseApiState.success));
+  //   } catch (e) {
+  //     emit(state.copyWith(state: BaseApiState.failure));
+  //     print('Error signing in with Google: $e');
+  //   }
+  // }
+  // Future<User?> signInWithFacebook() async {
+  //   emit(state.copyWith(state: BaseApiState.loading));
+  //   final LoginResult result = await FacebookAuth.instance.login();
+  //   if (result.status == LoginStatus.success) {
+  //     final AccessToken accessToken = result.accessToken!;
+  //     final OAuthCredential credential =
+  //         FacebookAuthProvider.credential(accessToken.token);
+  //
+  //     UserCredential userCredential =
+  //         await FirebaseAuth.instance.signInWithCredential(credential);
+  //     print(userCredential.user?.email ?? 'no email');
+  //     print(userCredential.credential?.accessToken ?? 'no access token');
+  //     emit(state.copyWith(state: BaseApiState.success));
+  //     return userCredential.user;
+  //   } else {
+  //     print('Facebook login failed: ${result.message}');
+  //     emit(state.copyWith(state: BaseApiState.failure));
+  //     return null;
+  //   }
+  // }
+  //
+  // void onSmsTap(BuildContext context) {
+  //   TextEditingController phoneController = TextEditingController();
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Enter your phone number"),
+  //         content: TextField(
+  //           controller: phoneController,
+  //           decoration:
+  //               const InputDecoration(hintText: "example: +201092452462"),
+  //           keyboardType: TextInputType.phone,
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               sendSms(phoneController.text.trim());
+  //             },
+  //             child: const Text("Send Code"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void sendSms(String phoneNumber) async {
+  //   emit(state.copyWith(state: BaseApiState.loading));
+  //   await FirebaseAuth.instance.verifyPhoneNumber(
+  //     phoneNumber: phoneNumber,
+  //     verificationCompleted: (PhoneAuthCredential credential) async {
+  //       await FirebaseAuth.instance.signInWithCredential(credential);
+  //       emit(state.copyWith(state: BaseApiState.success));
+  //     },
+  //     verificationFailed: (FirebaseAuthException e) {
+  //       emit(state.copyWith(
+  //           state: BaseApiState.failure, errorMessage: e.message));
+  //     },
+  //     codeSent: (String verificationId, int? resendToken) {
+  //       this.verificationId = verificationId;
+  //       emit(state.copyWith(state: BaseApiState.success));
+  //     },
+  //     codeAutoRetrievalTimeout: (String verificationId) {
+  //       this.verificationId = verificationId;
+  //     },
+  //   );
+  // }
+  //
+  // Future<void> verifyOtp(String smsCode) async {
+  //   if (verificationId == null) return;
+  //   emit(state.copyWith(state: BaseApiState.loading));
+  //   try {
+  //     PhoneAuthCredential credential = PhoneAuthProvider.credential(
+  //       verificationId: verificationId!,
+  //       smsCode: smsCode,
+  //     );
+  //     await FirebaseAuth.instance.signInWithCredential(credential);
+  //     emit(state.copyWith(state: BaseApiState.success));
+  //   } catch (e) {
+  //     emit(state.copyWith(
+  //         state: BaseApiState.failure, errorMessage: e.toString()));
+  //   }
+  // }
+  //
+  // void promptForOtp(BuildContext context) {
+  //   showOtpDialog(context, (userOtp) {
+  //     verifyOtp(userOtp);
+  //   });
+  // }
+  //
+  // void showOtpDialog(BuildContext context, Function(String) onOtpEntered) {
+  //   TextEditingController otpController = TextEditingController();
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Enter OTP"),
+  //         content: TextField(
+  //           controller: otpController,
+  //           keyboardType: TextInputType.number,
+  //           decoration: const InputDecoration(
+  //             hintText: "Enter the OTP",
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               onOtpEntered(otpController.text);
+  //             },
+  //             child: const Text("Verify"),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 }

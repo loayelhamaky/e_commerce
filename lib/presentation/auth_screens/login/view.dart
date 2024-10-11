@@ -1,3 +1,4 @@
+import 'package:e_commerce_app/presentation/auth_screens/cubit/auth_view_models/login_vm/login_factory/login_factory.dart';
 import 'package:e_commerce_app/presentation/auth_screens/login/widgets.dart';
 import 'package:e_commerce_app/presentation/main_screen/view/main_screen_view.dart';
 import 'package:flutter/material.dart';
@@ -23,125 +24,130 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LoginVm>(
-      create: (context) => vm,
-      child: BlocConsumer<LoginVm, AuthState>(
-        listener: (context, state) {
-          if (state.state == BaseApiState.offline) {
-            DialogUtils.showSnackBar(
-                context, Colors.red, ErrorStrings.internetErrorMessage);
-          }
-          if (state.state == BaseApiState.online &&
-              vm.connectionWasPreviouslyOffline) {
-            DialogUtils.showSnackBar(
-                context, Colors.green, AppStrings.internetRestoredMessage);
-          }
-          if (state.state == BaseApiState.loading) {
-            DialogUtils.showLoading(context);
-          }
-          if (state.state == BaseApiState.failure) {
-            DialogUtils.hidePopContext(context);
-            DialogUtils.showSnackBar(context, Colors.red,
-                state.errorMessage ?? ErrorStrings.errorDefaultMessage);
-          }
-          if (state.state == BaseApiState.success) {
-            DialogUtils.hidePopContext(context);
-            vm.navigateToHome(context);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            backgroundColor: AppColors.primary,
-            body: Form(
-              key: vm.formKey,
-              child: SingleChildScrollView(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0.w),
-                      child: Column(
-                        children: [
-                          loginWidgets.routeImgInLogin(context),
-                          loginWidgets.loginWelcomeTitle(context),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.only(bottom: 10.h, top: 20.h),
-                            child: Text(
-                              'Email',
-                              style: AppTextStyles.registrationDescription
-                                  .copyWith(fontSize: 20.sp),
-                            ),
+    return BlocConsumer<LoginVm, AuthState>(
+      listener: (context, state) {
+        if (state.state == BaseApiState.offline) {
+          DialogUtils.showSnackBar(
+              context, Colors.red, ErrorStrings.internetErrorMessage);
+        }
+        if (state.state == BaseApiState.online &&
+            vm.connectionWasPreviouslyOffline) {
+          DialogUtils.showSnackBar(
+              context, Colors.green, AppStrings.internetRestoredMessage);
+        }
+        if (state.state == BaseApiState.loading) {
+          DialogUtils.showLoading(context);
+        }
+        if (state.state == BaseApiState.failure) {
+          DialogUtils.hidePopContext(context);
+          DialogUtils.showSnackBar(context, Colors.red,
+              state.errorMessage ?? ErrorStrings.errorDefaultMessage);
+        }
+        if (state.state == BaseApiState.success) {
+          DialogUtils.hidePopContext(context);
+          vm.navigateToHome(context);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.primary,
+          body: Form(
+            key: vm.formKey,
+            child: SingleChildScrollView(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      children: [
+                        loginWidgets.routeImgInLogin(context),
+                        loginWidgets.loginWelcomeTitle(context),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.only(bottom: 10.h, top: 20.h),
+                          child: Text(
+                            'Email',
+                            style: AppTextStyles.registrationDescription
+                                .copyWith(fontSize: 20.sp),
                           ),
-                          AuthCommonWidgets.customTextFormField(
-                              'enter your email address',
-                              vm.emailController,
-                              vm.validateEmail),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.only(top: 20.h, bottom: 10.h),
-                            child: Text(
-                              'Password',
-                              style: AppTextStyles.registrationDescription
-                                  .copyWith(fontSize: 20.sp),
-                            ),
+                        ),
+                        AuthCommonWidgets.customTextFormField(
+                            'enter your email address',
+                            vm.emailController,
+                            vm.validateEmail),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.only(top: 20.h, bottom: 10.h),
+                          child: Text(
+                            'Password',
+                            style: AppTextStyles.registrationDescription
+                                .copyWith(fontSize: 20.sp),
                           ),
-                          AuthCommonWidgets.customTextFormField(
-                            'enter your password',
-                            vm.passwordController,
-                            vm.validatePassword,
+                        ),
+                        AuthCommonWidgets.customTextFormField(
+                          'enter your password',
+                          vm.passwordController,
+                          vm.validatePassword,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {},
+                            child: Text('Forgot password ?',
+                                style: AppTextStyles.registrationDescription),
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Text('Forgot password ?',
-                                  style: AppTextStyles.registrationDescription),
-                            ),
-                          ),
-                          AuthCommonWidgets.registerButton('Login', () {
-                            state.state == BaseApiState.offline
-                                ? DialogUtils.showSnackBar(context, Colors.red,
-                                    ErrorStrings.internetErrorMessage)
-                                : vm.loginWithMailAndPassword();
-                          }, context),
-                          loginWidgets.createAccountLine(context),
-                          BlocListener<LoginVm, AuthState>(
-                              bloc: vm,
-                              listener: (context, state) {
-                                if (state.state == BaseApiState.failure) {
-                                  DialogUtils.hidePopContext(context);
-                                } else if (state.state ==
-                                    BaseApiState.loading) {
-                                  DialogUtils.showLoading(context);
-                                }
-                                if (state.state == BaseApiState.success) {
-                                  DialogUtils.showSnackBar(context,
-                                      Colors.green, 'logged in successfully');
-                                  DialogUtils.hidePopContext(context);
-                                  Navigator.pushReplacementNamed(
-                                      context, MainScreen.routeName);
-                                }
-                              },
-                              child: Column(
-                                children: [
-                                  loginWidgets.loginWithAccWidget(
-                                      vm.loginWithGoogle, vm.signInWithFacebook,
-                                      () {
-                                    vm.onSmsTap(context);
-                                  })
-                                ],
-                              ))
-                        ],
-                      ),
+                        ),
+                        AuthCommonWidgets.registerButton('Login', () {
+                          state.state == BaseApiState.offline
+                              ? DialogUtils.showSnackBar(context, Colors.red,
+                                  ErrorStrings.internetErrorMessage)
+                              : vm.login(type: LoginType.emailAndPassword);
+                        }, context),
+                        loginWidgets.createAccountLine(context),
+                        BlocListener<LoginVm, AuthState>(
+                            bloc: vm,
+                            listener: (context, state) {
+                              if (state.state == BaseApiState.failure) {
+                                DialogUtils.hidePopContext(context);
+                              } else if (state.state ==
+                                  BaseApiState.loading) {
+                                DialogUtils.showLoading(context);
+                              }
+                              if (state.state == BaseApiState.success) {
+                                DialogUtils.showSnackBar(context,
+                                    Colors.green, 'logged in successfully');
+                                DialogUtils.hidePopContext(context);
+                                Navigator.pushReplacementNamed(
+                                    context, MainScreen.routeName);
+                              }
+                            },
+                            child: Column(
+                              children: [
+                                loginWidgets.loginWithAccWidget(
+                                  () {
+                                    vm.login(type: LoginType.google);
+                                  },
+                                  () {
+                                    vm.login(type: LoginType.facebook);
+                                  },
+                                  () {
+                                    vm.login(
+                                        type: LoginType.sms,
+                                        context: context);
+                                  },
+                                )
+                              ],
+                            ))
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'package:e_commerce_app/core/utils/constants/app_colors.dart';
-import 'package:e_commerce_app/core/utils/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/utils/constants/app_assets.dart';
@@ -10,7 +8,7 @@ class LoginWidgets {
   Widget routeImgInLogin(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 30),
+        SizedBox(height: 30.h),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.18,
           child: Align(
@@ -34,7 +32,7 @@ class LoginWidgets {
           ),
         ),
         Container(
-          margin: const EdgeInsets.only(bottom: 16, top: 8),
+          margin: EdgeInsets.only(bottom: 16.h, top: 8.h),
           alignment: Alignment.centerLeft,
           child: Text(
             'Please sign in with your mail',
